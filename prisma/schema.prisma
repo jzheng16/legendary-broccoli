@@ -1,0 +1,22 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+
+}
+
+model Question {
+  id        String     @default(cuid()) @id
+  content   String?
+  answer_1   String?
+  answer_2   String?
+  answer_3   String?
+  answer_4   String?
+  correct_answer String?
+}
