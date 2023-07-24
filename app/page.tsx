@@ -1,4 +1,11 @@
 import Prompt from './components/Prompt'
+import Chat from './components/Chat'
+import Pusher from "pusher-js";
+
+// const pusher = new Pusher(process.env.PUSHER_KEY, {
+//   cluster: process.env.PUSHER_CLUSTER,
+// });
+
 export default function Home() {
 
 
@@ -7,6 +14,7 @@ export default function Home() {
       <section className="w-9/12 ml-auto mr-auto p-8">
 
        <Prompt />
+       <Chat  />
       </section>
     </main>
   )

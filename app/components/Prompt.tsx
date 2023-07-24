@@ -26,7 +26,7 @@ export default function Prompt() {
 
   return (
     <div className="flex align-center rounded-xl">
-    <textarea onChange={(e) => setPrompt(e.target.value)} className="block w-11/12 bg-black color-white" type="text" placeholder="Prompt"></textarea>
+    <textarea onChange={(e) => setPrompt(e.target.value)} className="block w-11/12 bg-black color-white" placeholder="Prompt"></textarea>
     <button onClick={fetchResults} className="border-solid border-indigo-600 bg-indigo-600 text-white">
       <FontAwesomeIcon
         icon={faPaperPlane}
