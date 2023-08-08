@@ -30,6 +30,7 @@ export const authOptions: AuthOptions = {
       // console.log('account', account);
       // console.log('profile', profile)
       if (account?.provider === 'email') {
+        console.log('here', user, account, profile, email)
         // Email provider will fire signIn off two times and will have email.verificationRequest === true during the first part of the callback
         // When the verification email is being sent to the user 
       }
@@ -75,6 +76,7 @@ export const authOptions: AuthOptions = {
     //   return session
     // }
   },
+  session: { strategy: "jwt" }
 }
 
 const handler = NextAuth(authOptions)
