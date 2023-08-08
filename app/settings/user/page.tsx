@@ -2,9 +2,9 @@ import { notFound } from 'next/navigation';
 
 export default function UserPage() {
   const x = null;
-  // if (!x) {
-  //   notFound();
-  // }
+  if (!x) {
+    notFound();
+  }
 
   return (
     <main>

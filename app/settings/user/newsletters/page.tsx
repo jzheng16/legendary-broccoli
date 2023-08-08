@@ -5,3 +5,8 @@ export default function UserPage() {
     </main>
   )
 }
+
+
+// function add(x: number, y:number): number {
+//   return x + y;
+// }
