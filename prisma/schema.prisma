@@ -58,10 +58,10 @@ model VerificationToken {
 
 model Question {
   id        String     @default(cuid()) @id
-  content   String?
-  answerOne   String?
-  answerTwo   String?
-  answerThree   String?
-  answerFour   String?
-  correctAnswer String?
+  content   String
+  answerOne   String
+  answerTwo   String
+  answerThree   String
+  answerFour   String
+  correctAnswer String
 }
