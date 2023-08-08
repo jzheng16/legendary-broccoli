@@ -40,4 +40,14 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 To migrate (create) schemas run `npx prisma migrate dev --name init`
 
+To open up Prisma's GUI (substitute for pgAdmin) run `npx prisma studio`
+
+# Seeding Database
+If you need to seed some data in the database, create a `[table_name].tsx` file underneath `prisma/data` that has JSON data.
+
+Import it into `prisma/seed.tsx` and then follow the convention in the file.
+
+Run the command: `npm run seed`
+
+
 # Schemas
