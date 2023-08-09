@@ -1,8 +1,11 @@
 'use client'
 import {Suspense, useEffect, useState} from 'react';
+import { useRouter } from 'next/navigation';
+
 
 
 export default function UserPage({params}) {
+  const router = useRouter();
 
   const [todos, setTodos] = useState([]);
 
@@ -20,7 +23,11 @@ export default function UserPage({params}) {
 
   const deleteTodo = (id) => {
     // Delete off backend (make API request)
+    router.refresh();
     setTodos(todos.filter(todo => todo.id !== id));
+
+
+
   }
 
   

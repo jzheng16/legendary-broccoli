@@ -6,6 +6,7 @@ const prisma = new PrismaClient()
 
 const API_URL = 'https://api.openai.com/v1';
 
+// POST http:localhost:3000/api/prompt 
 
 // export async function POST(request: Request) {
 //   const prompt = await request.json();

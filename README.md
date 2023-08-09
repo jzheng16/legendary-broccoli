@@ -32,3 +32,22 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+
+
+
+# Prisma
+
+To migrate (create) schemas run `npx prisma migrate dev --name init`
+
+To open up Prisma's GUI (substitute for pgAdmin) run `npx prisma studio`
+
+# Seeding Database
+If you need to seed some data in the database, create a `[table_name].tsx` file underneath `prisma/data` that has JSON data.
+
+Import it into `prisma/seed.tsx` and then follow the convention in the file.
+
+Run the command: `npm run seed`
+
+
+# Schemas
