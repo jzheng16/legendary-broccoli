@@ -1,8 +1,11 @@
 'use client'
 
 import {useState, useEffect} from 'react';
+import { useSession } from "next-auth/react"
 
 const ClientComponent = () => {
+  const { data: session } = useSession()
+  console.log('session in client component', session)
 
   const [todos, setTodos] = useState([]);
  

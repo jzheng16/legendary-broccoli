@@ -3,16 +3,12 @@ import EmailProvider from "next-auth/providers/email"
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
-
+import type { AuthOptions } from "next-auth"
 const prisma = new PrismaClient();
 
-const handler = NextAuth({
+export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET
-    }),
     EmailProvider({
       server: {
         host: process.env.EMAIL_SERVER_HOST,
@@ -24,12 +20,17 @@ const handler = NextAuth({
       },
       from: process.env.EMAIL_FROM
     }),
-  ], 
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+    }),
+  ],
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
       // console.log('account', account);
       // console.log('profile', profile)
       if (account?.provider === 'email') {
+        console.log('here', user, account, profile, email)
         // Email provider will fire signIn off two times and will have email.verificationRequest === true during the first part of the callback
         // When the verification email is being sent to the user 
       }
@@ -42,10 +43,10 @@ const handler = NextAuth({
         try {
           const user = await prisma.user.findUnique({
             where: {
-              id: profile?.sub
+              email: profile?.email
             }
           });
-          
+
           if (!user) {
             const createdUser = await prisma.user.create({
               data: {
@@ -57,10 +58,10 @@ const handler = NextAuth({
             })
             console.log('created user', createdUser)
           }
-          
+
           console.log('user', user)
         } catch (err) {
-          console.log('err',err)
+          console.log('err', err)
         }
 
 
@@ -68,7 +69,16 @@ const handler = NextAuth({
       }
       return true // Do different verification for other providers that don't have `email_verified`
     },
-  }
-})
+    // async session({ session, token, user }) {
+    //   // const newData = DB.find(...).data
+    //   console.log(session, token, user)
+    //   // session.newfield = newInfo
+    //   return session
+    // }
+  },
+  session: { strategy: "jwt" }
+}
+
+const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }
