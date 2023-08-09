@@ -9,7 +9,7 @@ export default withAuth(
     callbacks: {
       authorized: ({token}) => {
         console.log('token', token);
-        return token.email ? true : false;
+        return token?.email ? true : false;
       },
     },
   }
