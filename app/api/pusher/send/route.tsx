@@ -10,9 +10,9 @@ export const pusher = new Pusher({
 });
 
 export async function POST(req: NextRequest) {
-    const { sender, message } = await req.json();
+    const { sender, message, channel, event } = await req.json();
     console.log(sender, message);
-    const response = await pusher.trigger(process.env.PUSHER_CHANNEL, process.env.PUSHER_EVENT, {
+    const response = await pusher.trigger(channel, event, {
         message,
         sender,
     });

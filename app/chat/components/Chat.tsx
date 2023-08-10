@@ -10,6 +10,7 @@ export default function Chat({pusher_config}) {
     const [messages, setMessages] = useState([]);
     const [members, setMembers] = useState({});
     const [pusher, setPusher] = useState(null);
+    const [channel, setChannel] = useState({});
     const messagesScrollRef = useRef(null);
 
     useEffect(() => {
@@ -18,13 +19,14 @@ export default function Chat({pusher_config}) {
 
     const sendMessage = async () => {
         console.log(messageText);
+        console.log('channel', channel);
         if(messageText.length > 0) {
             await fetch(`${pusher_config.endpoint}/send`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ message: messageText, sender })
+                body: JSON.stringify({ message: messageText, sender, channel: channel.name, event: 'client-sendmessage' })
             }).then(response => {
                 return response.json();
             }).then(data => {
@@ -33,6 +35,9 @@ export default function Chat({pusher_config}) {
             });
         }
     };
+
+    // When a user answers a question, what data needs to be sent to pusher?
+    // Answer that they picked, User ID, What channel they're in, The type of event (ex: answer-clicked)
 
     const joinChat = () => {
         if(sender.length > 0) {
@@ -46,27 +51,38 @@ export default function Chat({pusher_config}) {
                     'transport': 'ajax'
                 }
             });
-            const channel = _pusher.subscribe(pusher_config.channel);
+            const _channel = _pusher.subscribe(pusher_config.channel);
             console.log('subscribing..')
 
-            channel.bind("pusher:subscription_succeeded", () => {
-                console.log("Joined Channel: ", channel.members);
-                setMembers(channel.members.members);
+            // This event only gets broadcasted from pusher for the current user ONLY
+            _channel.bind("pusher:subscription_succeeded", () => {
+                console.log("Joined Channel: ", _channel.members);
+                setMembers(_channel.members.members);
             });
 
-            channel.bind("pusher:member_added", (member) => {
-                console.log('ALL MEMBERS IN MEMBER ADDED', channel.members);
-                console.log("Member add: ", member);
+            _channel.bind("pusher:member_added", (member) => {
+                console.log('member that was added', member)
+                // console.log('member added', channel.members.members)
+                setMembers(prevState => {
+                    return {...prevState, [member.id]: member.info}
+                });
             });
 
-            channel.bind("pusher:member_removed", (member) => {
+            _channel.bind("pusher:member_removed", (member) => {
+                setMembers(prevState => {
+                    delete prevState[member.id];
+                    return { ...prevState }
+                });
                 console.log("Member removed: ", member);
             });
 
-            channel.bind(pusher_config.event, data => {
+
+
+            _channel.bind("client-sendmessage", data => {
                 setMessages((prevState) => [...prevState, { sender: data.sender, message: data.message }]);
-                console.log("show me data: ", data);
+                console.log("Message incoming... ", data);
             });
+            setChannel(_channel);
             setPusher(_pusher);
             setChatJoined(true);
         }
@@ -78,15 +94,16 @@ export default function Chat({pusher_config}) {
         setPusher(null);
     }
 
+    console.log('members list', members)
+
     return (
         <section>
             {chatJoined ?
                 <div>
                     <h2>Members:</h2>
                     <ul className="bg-indigo-50 h-16 overflow-auto">
-                        <li className="bg-green-100">{sender}</li>
                         {Object.entries(members).map(([user_id, user_info]) =>  (
-                            <li key={user_id}>{user_info.name}</li>
+                            <li key={user_id} className="text-black">{user_info.name}</li>
                         ))}
                      
                     </ul>
@@ -101,12 +118,12 @@ export default function Chat({pusher_config}) {
                         ))}
                         <li ref={messagesScrollRef}></li>
                     </ul>
-                    <textarea onChange={(e) => setMessageText(e.target.value)} placeholder="Enter Message..." value={messageText}></textarea>
+                    <textarea className="text-black" onChange={(e) => setMessageText(e.target.value)} placeholder="Enter Message..." value={messageText}></textarea>
                     <button type="button" onClick={sendMessage}>Send</button>
                 </div>
             :
                 <div>
-                    <input type="text" placeholder="Enter Name..." onChange={(e) => setSender(e.target.value)} />
+                    <input className="text-black" type="text" placeholder="Enter Name..." onChange={(e) => setSender(e.target.value)} />
                     <button type="button" onClick={joinChat}>Join</button>
                 </div>
             }
