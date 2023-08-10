@@ -8,44 +8,9 @@ export default function Chat({pusher_config}) {
     const [chatJoined, setChatJoined] = useState(false);
     const [messageText, setMessageText] = useState("");
     const [messages, setMessages] = useState([]);
+    const [members, setMembers] = useState({});
+    const [pusher, setPusher] = useState(null);
     const messagesScrollRef = useRef(null);
-
-    useEffect(() => {
-        console.log(pusher_config);
-        const pusher = new Pusher(pusher_config.key, {
-            cluster: pusher_config.cluster,
-            userAuthentication: {
-                'endpoint': `${pusher_config.endpoint}/auth`,
-                'transport': 'ajax'
-            },
-            channelAuthorization: {
-                'endpoint': `${pusher_config.endpoint}/auth`,
-                'transport': 'ajax'
-            }
-        });
-        const channel = pusher.subscribe(pusher_config.channel);
-
-        channel.bind("pusher:subscription_succeeded", () => {
-            console.log("User joined: ", channel.members);
-        });
-
-        channel.bind("pusher:member_added", (member) => {
-            console.log("Member add: ", member);
-        });
-
-        channel.bind("pusher:member_removed", (member) => {
-            console.log("Member removed: ", member);
-        });
-
-        channel.bind(pusher_config.event, data => {
-            setMessages((prevState) => [...prevState, { sender: data.sender, message: data.message }]);
-            console.log("show me data: ", data);
-        });
-
-        return () => {
-            pusher.unsubscribe(pusher_config.channel);
-        }
-    }, []);
 
     useEffect(() => {
         messagesScrollRef?.current?.scrollIntoView({ behavior: 'smooth' });
@@ -70,17 +35,61 @@ export default function Chat({pusher_config}) {
     };
 
     const joinChat = () => {
-        setChatJoined(true);
+        if(sender.length > 0) {
+            const _pusher = new Pusher(pusher_config.key, {
+                cluster: pusher_config.cluster,
+                channelAuthorization: {
+                    'endpoint': `${pusher_config.endpoint}/auth`,
+                    params: {
+                        user: sender
+                    },
+                    'transport': 'ajax'
+                }
+            });
+            const channel = _pusher.subscribe(pusher_config.channel);
+            console.log('subscribing..')
+
+            channel.bind("pusher:subscription_succeeded", () => {
+                console.log("Joined Channel: ", channel.members);
+                setMembers(channel.members.members);
+            });
+
+            channel.bind("pusher:member_added", (member) => {
+                console.log('ALL MEMBERS IN MEMBER ADDED', channel.members);
+                console.log("Member add: ", member);
+            });
+
+            channel.bind("pusher:member_removed", (member) => {
+                console.log("Member removed: ", member);
+            });
+
+            channel.bind(pusher_config.event, data => {
+                setMessages((prevState) => [...prevState, { sender: data.sender, message: data.message }]);
+                console.log("show me data: ", data);
+            });
+            setPusher(_pusher);
+            setChatJoined(true);
+        }
     };
 
     const leaveChat = () => {
+        pusher.unsubscribe(pusher_config.channel);
         setChatJoined(false);
+        setPusher(null);
     }
 
     return (
         <section>
             {chatJoined ?
                 <div>
+                    <h2>Members:</h2>
+                    <ul className="bg-indigo-50 h-16 overflow-auto">
+                        <li className="bg-green-100">{sender}</li>
+                        {Object.entries(members).map(([user_id, user_info]) =>  (
+                            <li key={user_id}>{user_info.name}</li>
+                        ))}
+                     
+                    </ul>
                     <h2>Hi {sender},</h2>
                     <button type="button" onClick={leaveChat}>Leave</button>
                     <ul className="bg-gray-300 h-64 overflow-auto">
