@@ -3,7 +3,7 @@ const PUSHER_CONFIG = {
     endpoint: process.env.PUSHER_ENDPOINT,
     cluster: process.env.PUSHER_CLUSTER,
     key: process.env.PUSHER_KEY,
-    channel: "private-kyongsucks",
+    channel: "presence-kyongsucks",
     event: "client-balls"
 };
 
